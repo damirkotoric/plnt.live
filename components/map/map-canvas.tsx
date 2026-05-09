@@ -7,34 +7,54 @@ import { LIGHT_STYLE, DARK_STYLE } from '@/lib/map/styles';
 import { STATIC_SOURCES, getStaticLayers, getQuakeLayer, getPulseLayer } from '@/lib/map/layers';
 import { eventsToGeoJSON } from '@/lib/events/geojson';
 import { getPulseEvents, pulsesToGeoJSON } from '@/lib/events/pulse';
+import { fetchRecentEvents } from '@/lib/events/fetch';
 import { getSupabasePublic } from '@/lib/supabase/public';
 import { connectEmsc } from '@/lib/emsc/client';
 import { LiveCounter } from '@/components/map/live-counter';
+import { FilterControls } from '@/components/map/filter-controls';
 import type { MapEvent } from '@/lib/usgs/types';
+import type { Filters } from '@/lib/filters';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-type Props = { initialEvents: MapEvent[] };
+type Props = { initialEvents: MapEvent[]; initialFilters: Filters };
 
 function getStyle(theme: string | undefined) {
   return theme === 'dark' ? DARK_STYLE : LIGHT_STYLE;
 }
 
-export function MapCanvas({ initialEvents }: Props) {
+export function MapCanvas({ initialEvents, initialFilters }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const eventsRef = useRef<MapEvent[]>(initialEvents);
   const [events, setEvents] = useState<MapEvent[]>(initialEvents);
+  const [filters, setFilters] = useState<Filters>(initialFilters);
+  const filtersRef = useRef<Filters>(initialFilters);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Keep ref in sync for style.load closure
+  // Keep refs in sync
   useEffect(() => {
     eventsRef.current = events;
   }, [events]);
 
   useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
+  useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Refetch when filters change
+  useEffect(() => {
+    let cancelled = false;
+    fetchRecentEvents(filters.hours, filters.minMag).then((rows) => {
+      if (!cancelled) setEvents(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [filters.hours, filters.minMag]);
 
   // Init map once
   useEffect(() => {
@@ -145,6 +165,10 @@ export function MapCanvas({ initialEvents }: Props) {
         (payload) => {
           const row = payload.new as MapEvent;
           setEvents((prev) => {
+            const f = filtersRef.current;
+            if (row.magnitude < f.minMag) return prev;
+            const ageMs = Date.now() - new Date(row.time).getTime();
+            if (ageMs > f.hours * 60 * 60 * 1000) return prev;
             if (prev.some((e) => e.id === row.id)) return prev;
             return [row, ...prev];
           });
@@ -170,6 +194,10 @@ export function MapCanvas({ initialEvents }: Props) {
     const disconnect = connectEmsc({
       onEvent: (incoming) => {
         setEvents((prev) => {
+          const f = filtersRef.current;
+          if (incoming.magnitude < f.minMag) return prev;
+          const ageMs = Date.now() - new Date(incoming.time).getTime();
+          if (ageMs > f.hours * 60 * 60 * 1000) return prev;
           const idx = prev.findIndex((e) => e.id === incoming.id);
           if (idx === -1) return [incoming, ...prev];
           const next = [...prev];
@@ -186,6 +214,9 @@ export function MapCanvas({ initialEvents }: Props) {
       <div ref={containerRef} className="h-screen w-screen" />
       <div className="absolute top-4 left-4 z-10">
         <LiveCounter events={events} />
+      </div>
+      <div className="absolute bottom-4 right-4 z-10">
+        <FilterControls filters={filters} onChange={setFilters} />
       </div>
     </>
   );

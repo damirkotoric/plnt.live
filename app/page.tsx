@@ -1,15 +1,21 @@
 import { MapCanvas } from '@/components/map/map-canvas';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { fetchRecentEvents } from '@/lib/events/fetch';
+import { parseFilters } from '@/lib/filters';
 
 export const revalidate = 60;
 
-export default async function HomePage() {
-  const initialEvents = await fetchRecentEvents();
+type Props = {
+  searchParams: Promise<{ hours?: string; mag?: string }>;
+};
+
+export default async function HomePage({ searchParams }: Props) {
+  const filters = parseFilters(await searchParams);
+  const initialEvents = await fetchRecentEvents(filters.hours, filters.minMag);
 
   return (
     <main className="relative h-screen w-screen overflow-hidden">
-      <MapCanvas initialEvents={initialEvents} />
+      <MapCanvas initialEvents={initialEvents} initialFilters={filters} />
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
