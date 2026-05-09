@@ -19,7 +19,7 @@ export async function fetchEventById(id: string): Promise<MapEvent | null> {
   const supabase = getSupabasePublic();
   const { data, error } = await supabase
     .from('events')
-    .select('id, time, magnitude, depth_km, latitude, longitude, place, og_image_url')
+    .select('id, time, magnitude, depth_km, latitude, longitude, place')
     .eq('id', id)
     .maybeSingle();
   if (error) throw new Error(`fetchEventById: ${error.message}`);

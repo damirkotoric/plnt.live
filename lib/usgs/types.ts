@@ -35,7 +35,6 @@ export type MapEvent = {
   latitude: number;
   longitude: number;
   place: string | null;
-  og_image_url?: string | null;
 };
 
 export type EventRow = {
