@@ -39,6 +39,8 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
+        <link rel="preconnect" href="https://tiles.openfreemap.org" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://bocakoudbvqmzjrmjhxy.supabase.co" />
         <Script
           defer
           data-domain="plnt.live"

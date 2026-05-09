@@ -34,8 +34,9 @@ export function FilterControls({ filters, onChange }: Props) {
       <button
         onClick={() => setOpen((o) => !o)}
         className="flex sm:hidden items-center gap-2 px-3 py-2 text-xs"
+        aria-label="Toggle filter controls"
       >
-        <Sliders size={14} />
+        <Sliders size={14} aria-hidden="true" />
         <span className="font-medium">{currentTimeLabel} · {currentMagLabel}</span>
       </button>
 
