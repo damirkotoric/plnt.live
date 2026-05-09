@@ -232,7 +232,7 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
 
   return (
     <>
-      <div ref={containerRef} className="absolute inset-0" />
+      <div ref={containerRef} className="h-screen w-screen" />
       <div className="absolute top-3 left-3 right-16 sm:right-auto z-10">
         <LiveCounter events={events} />
       </div>
