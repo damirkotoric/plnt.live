@@ -8,6 +8,7 @@ import { STATIC_SOURCES, getStaticLayers, getQuakeLayer, getPulseLayer } from '@
 import { eventsToGeoJSON } from '@/lib/events/geojson';
 import { getPulseEvents, pulsesToGeoJSON } from '@/lib/events/pulse';
 import { getSupabasePublic } from '@/lib/supabase/public';
+import { connectEmsc } from '@/lib/emsc/client';
 import { LiveCounter } from '@/components/map/live-counter';
 import type { MapEvent } from '@/lib/usgs/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -133,7 +134,7 @@ export function MapCanvas({ initialEvents }: Props) {
     return () => cancelAnimationFrame(raf);
   }, [mounted]);
 
-  // Realtime subscription
+  // Supabase realtime subscription
   useEffect(() => {
     const supabase = getSupabasePublic();
     const channel = supabase
@@ -162,6 +163,22 @@ export function MapCanvas({ initialEvents }: Props) {
     return () => {
       supabase.removeChannel(channel);
     };
+  }, []);
+
+  // EMSC WebSocket for sub-5s event push
+  useEffect(() => {
+    const disconnect = connectEmsc({
+      onEvent: (incoming) => {
+        setEvents((prev) => {
+          const idx = prev.findIndex((e) => e.id === incoming.id);
+          if (idx === -1) return [incoming, ...prev];
+          const next = [...prev];
+          next[idx] = incoming;
+          return next;
+        });
+      },
+    });
+    return disconnect;
   }, []);
 
   return (
