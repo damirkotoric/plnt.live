@@ -27,6 +27,16 @@ export const usgsFeedSchema = z.object({
 
 export type UsgsFeature = z.infer<typeof usgsFeatureSchema>;
 
+export type MapEvent = {
+  id: string;
+  time: string;
+  magnitude: number;
+  depth_km: number | null;
+  latitude: number;
+  longitude: number;
+  place: string | null;
+};
+
 export type EventRow = {
   id: string;
   time: string;

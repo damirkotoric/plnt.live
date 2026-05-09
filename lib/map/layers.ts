@@ -40,3 +40,39 @@ export function getStaticLayers(): LayerSpecification[] {
     },
   ];
 }
+
+export function getQuakeLayer(): LayerSpecification {
+  const styles = getComputedStyle(document.documentElement);
+  const fresh = `hsl(${styles.getPropertyValue('--quake-fresh').trim()})`;
+  const recent = `hsl(${styles.getPropertyValue('--quake-recent').trim()})`;
+  const older = `hsl(${styles.getPropertyValue('--quake-older').trim()})`;
+
+  return {
+    id: 'quakes-circle',
+    type: 'circle',
+    source: 'quakes',
+    paint: {
+      'circle-radius': [
+        'interpolate', ['linear'], ['get', 'magnitude'],
+        2.5, 3,
+        5, 7,
+        7, 16,
+        9, 28,
+      ],
+      'circle-color': [
+        'interpolate', ['linear'], ['get', 'ageMinutes'],
+        0, fresh,
+        60, recent,
+        360, older,
+        1440, older,
+      ],
+      'circle-opacity': [
+        'interpolate', ['linear'], ['get', 'ageMinutes'],
+        0, 0.95,
+        1440, 0.55,
+      ],
+      'circle-stroke-width': 1,
+      'circle-stroke-color': 'hsl(0 0% 100% / 0.4)',
+    },
+  };
+}

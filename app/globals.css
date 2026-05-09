@@ -75,6 +75,9 @@
   --radius: 0.625rem;
   --map-plate: 25 70% 55%;
   --map-fault: 30 50% 45%;
+  --quake-fresh: 10 90% 55%;
+  --quake-recent: 30 80% 55%;
+  --quake-older: 45 50% 55%;
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -111,6 +114,9 @@
   --chart-5: oklch(0.269 0 0);
   --map-plate: 25 80% 65%;
   --map-fault: 30 60% 55%;
+  --quake-fresh: 10 95% 60%;
+  --quake-recent: 30 90% 60%;
+  --quake-older: 45 60% 50%;
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);
