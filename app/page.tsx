@@ -1,13 +1,43 @@
-import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { getSupabasePublic } from '@/lib/supabase/public';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
-export default function Home() {
+export const revalidate = 60;
+
+export default async function HomePage() {
+  const supabase = getSupabasePublic();
+
+  const { count } = await supabase
+    .from('events')
+    .select('*', { count: 'exact', head: true });
+
+  const { data: latest } = await supabase
+    .from('events')
+    .select('time, magnitude, place')
+    .order('time', { ascending: false })
+    .limit(1)
+    .single();
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center">
-      <div className="flex flex-col items-center gap-6">
-        <h1 className="text-4xl font-bold">plnt.live</h1>
-        <p className="text-muted-foreground">Real-time earthquake map</p>
+    <main className="min-h-screen flex items-center justify-center p-8">
+      <div className="absolute top-4 right-4">
         <ThemeToggle />
       </div>
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>plnt.live</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-2">
+          <p className="text-2xl font-semibold">
+            {count?.toLocaleString() ?? 0} earthquakes tracked
+          </p>
+          {latest && (
+            <p className="text-sm text-muted-foreground">
+              Latest: M{latest.magnitude} — {latest.place}
+            </p>
+          )}
+        </CardContent>
+      </Card>
     </main>
   );
 }
