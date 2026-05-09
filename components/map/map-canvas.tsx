@@ -4,9 +4,11 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl, { Map as MapLibreMap, MapOptions, GeoJSONSource } from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { LIGHT_STYLE, DARK_STYLE } from '@/lib/map/styles';
-import { STATIC_SOURCES, getStaticLayers, getQuakeLayer } from '@/lib/map/layers';
+import { STATIC_SOURCES, getStaticLayers, getQuakeLayer, getPulseLayer } from '@/lib/map/layers';
 import { eventsToGeoJSON } from '@/lib/events/geojson';
+import { getPulseEvents, pulsesToGeoJSON } from '@/lib/events/pulse';
 import { getSupabasePublic } from '@/lib/supabase/public';
+import { LiveCounter } from '@/components/map/live-counter';
 import type { MapEvent } from '@/lib/usgs/types';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -48,19 +50,35 @@ export function MapCanvas({ initialEvents }: Props) {
     map.on('style.load', () => {
       map.setProjection({ type: 'globe' });
 
+      // Static sources
       for (const [id, source] of Object.entries(STATIC_SOURCES)) {
         if (!map.getSource(id)) map.addSource(id, source);
       }
+
+      // Quake + pulse sources
       if (!map.getSource('quakes')) {
         map.addSource('quakes', {
           type: 'geojson',
           data: eventsToGeoJSON(eventsRef.current),
         });
       }
+      if (!map.getSource('pulses')) {
+        map.addSource('pulses', {
+          type: 'geojson',
+          data: pulsesToGeoJSON([], 0),
+        });
+      }
 
+      // Static layers
       for (const layer of getStaticLayers()) {
         if (!map.getLayer(layer.id)) map.addLayer(layer);
       }
+
+      // Pulse layer (below quake dots)
+      const pulseLayer = getPulseLayer();
+      if (!map.getLayer(pulseLayer.id)) map.addLayer(pulseLayer);
+
+      // Quake layer (on top)
       const quakeLayer = getQuakeLayer();
       if (!map.getLayer(quakeLayer.id)) map.addLayer(quakeLayer);
     });
@@ -93,6 +111,28 @@ export function MapCanvas({ initialEvents }: Props) {
     if (src) src.setData(eventsToGeoJSON(events));
   }, [events]);
 
+  // Pulse animation loop
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    let raf = 0;
+    const PERIOD_MS = 2000;
+    const start = performance.now();
+
+    const tick = (now: number) => {
+      const t = ((now - start) % PERIOD_MS) / PERIOD_MS;
+      const src = map.getSource('pulses') as GeoJSONSource | undefined;
+      if (src) {
+        src.setData(pulsesToGeoJSON(getPulseEvents(eventsRef.current), t));
+      }
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [mounted]);
+
   // Realtime subscription
   useEffect(() => {
     const supabase = getSupabasePublic();
@@ -124,5 +164,12 @@ export function MapCanvas({ initialEvents }: Props) {
     };
   }, []);
 
-  return <div ref={containerRef} className="h-screen w-screen" />;
+  return (
+    <>
+      <div ref={containerRef} className="h-screen w-screen" />
+      <div className="absolute top-4 left-4 z-10">
+        <LiveCounter events={events} />
+      </div>
+    </>
+  );
 }

@@ -76,3 +76,20 @@ export function getQuakeLayer(): LayerSpecification {
     },
   };
 }
+
+export function getPulseLayer(): LayerSpecification {
+  const styles = getComputedStyle(document.documentElement);
+  const fresh = `hsl(${styles.getPropertyValue('--quake-fresh').trim()})`;
+
+  return {
+    id: 'quakes-pulse',
+    type: 'circle',
+    source: 'pulses',
+    paint: {
+      'circle-radius': ['*', ['get', 'baseRadius'], ['get', 'pulseScale']],
+      'circle-color': fresh,
+      'circle-opacity': ['get', 'pulseOpacity'],
+      'circle-stroke-width': 0,
+    },
+  };
+}
