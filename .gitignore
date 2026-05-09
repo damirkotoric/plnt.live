@@ -38,6 +38,9 @@ yarn-error.log*
 # mcp config (contains secrets)
 .mcp.json
 
+# raw data files (too large to commit)
+public/data/faults-raw.json
+
 # vercel
 .vercel
 

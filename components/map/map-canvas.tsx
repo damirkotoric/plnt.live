@@ -4,10 +4,20 @@ import { useEffect, useRef, useState } from 'react';
 import maplibregl, { Map as MapLibreMap, MapOptions } from 'maplibre-gl';
 import { useTheme } from 'next-themes';
 import { LIGHT_STYLE, DARK_STYLE } from '@/lib/map/styles';
+import { STATIC_SOURCES, getStaticLayers } from '@/lib/map/layers';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 function getStyle(theme: string | undefined) {
   return theme === 'dark' ? DARK_STYLE : LIGHT_STYLE;
+}
+
+function addStaticLayers(map: MapLibreMap) {
+  for (const [id, source] of Object.entries(STATIC_SOURCES)) {
+    if (!map.getSource(id)) map.addSource(id, source);
+  }
+  for (const layer of getStaticLayers()) {
+    if (!map.getLayer(layer.id)) map.addLayer(layer);
+  }
 }
 
 export function MapCanvas() {
@@ -31,8 +41,9 @@ export function MapCanvas() {
       attributionControl: { compact: true },
     } as MapOptions);
 
-    map.on('load', () => {
+    map.on('style.load', () => {
       map.setProjection({ type: 'globe' });
+      addStaticLayers(map);
     });
 
     map.addControl(
@@ -52,9 +63,6 @@ export function MapCanvas() {
     if (!mapRef.current) return;
     const style = getStyle(resolvedTheme);
     mapRef.current.setStyle(style);
-    mapRef.current.once('style.load', () => {
-      mapRef.current?.setProjection({ type: 'globe' });
-    });
   }, [resolvedTheme]);
 
   return <div ref={containerRef} className="h-screen w-screen" />;
