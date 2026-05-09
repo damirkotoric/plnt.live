@@ -134,6 +134,11 @@
   }
   html, body {
     @apply h-full m-0;
+    overscroll-behavior: none;
+    touch-action: pan-x pan-y;
+  }
+  .maplibregl-canvas {
+    outline: none;
   }
   body {
     @apply bg-background text-foreground;

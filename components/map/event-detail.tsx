@@ -23,7 +23,7 @@ export function EventDetail({ event, onClose }: Props) {
               </SheetTitle>
               <SheetDescription>{event.place ?? 'Unknown location'}</SheetDescription>
             </SheetHeader>
-            <div className="mt-6 space-y-4">
+            <div className="mt-6 space-y-5 sm:space-y-4">
               <Stat label="Time" value={`${timeAgo(event.time)} · ${new Date(event.time).toUTCString()}`} />
               <Stat label="Depth" value={event.depth_km !== null ? `${event.depth_km.toFixed(1)} km` : 'Unknown'} />
               <Stat label="Coordinates" value={`${event.latitude.toFixed(3)}, ${event.longitude.toFixed(3)}`} />
@@ -31,13 +31,13 @@ export function EventDetail({ event, onClose }: Props) {
                 href={`https://earthquake.usgs.gov/earthquakes/eventpage/${event.id}`}
                 target="_blank"
                 rel="noreferrer"
-                className="block text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                className="block text-sm py-1 text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
               >
                 View on USGS →
               </a>
               <Link
                 href={eventPath(event)}
-                className="block text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+                className="block text-sm py-1 text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
               >
                 Permanent link →
               </Link>

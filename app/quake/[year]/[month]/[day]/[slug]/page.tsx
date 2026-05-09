@@ -57,12 +57,12 @@ export default async function QuakePage({ params }: { params: Params }) {
   const date = new Date(event.time);
 
   return (
-    <main className="min-h-screen px-6 py-12 max-w-3xl mx-auto">
-      <a href="/" className="text-sm text-muted-foreground hover:text-foreground">
+    <main className="min-h-screen px-4 sm:px-6 py-8 sm:py-12 max-w-3xl mx-auto">
+      <a href="/" className="text-base sm:text-sm text-muted-foreground hover:text-foreground">
         ← Back to map
       </a>
       <header className="mt-8">
-        <h1 className="text-5xl font-semibold tracking-tight">
+        <h1 className="text-4xl sm:text-5xl font-semibold tracking-tight">
           M{event.magnitude.toFixed(1)} Earthquake
         </h1>
         <p className="text-xl text-muted-foreground mt-2">

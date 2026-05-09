@@ -232,11 +232,11 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
 
   return (
     <>
-      <div ref={containerRef} className="h-screen w-screen" />
-      <div className="absolute top-4 left-4 z-10">
+      <div ref={containerRef} className="absolute inset-0" />
+      <div className="absolute top-3 left-3 right-16 sm:right-auto z-10">
         <LiveCounter events={events} />
       </div>
-      <div className="absolute bottom-4 right-4 z-10">
+      <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 z-10">
         <FilterControls filters={filters} onChange={setFilters} />
       </div>
       <EventDetail event={selected} onClose={() => setSelected(null)} />
