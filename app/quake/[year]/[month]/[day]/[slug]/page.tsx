@@ -37,10 +37,17 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const date = new Date(event.time).toUTCString();
   const title = `M${event.magnitude.toFixed(1)} Earthquake — ${event.place ?? 'Unknown'} | plnt.live`;
   const description = `A magnitude ${event.magnitude.toFixed(1)} earthquake struck ${event.place ?? 'an unknown location'} at ${date}. Depth: ${event.depth_km?.toFixed(1) ?? 'unknown'} km.`;
+  const ogImage = event.og_image_url;
   return {
     title,
     description,
-    openGraph: { title, description, type: 'article' },
+    openGraph: {
+      title,
+      description,
+      type: 'article',
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+    },
+    twitter: ogImage ? { card: 'summary_large_image', images: [ogImage] } : undefined,
     alternates: { canonical: eventPath(event) },
   };
 }
