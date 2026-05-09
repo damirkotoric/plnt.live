@@ -35,6 +35,7 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const filtersRef = useRef<Filters>(initialFilters);
   const [selected, setSelected] = useState<MapEvent | null>(null);
+  const [connected, setConnected] = useState(false);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -203,7 +204,9 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
           setEvents((prev) => prev.map((e) => (e.id === row.id ? row : e)));
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        setConnected(status === 'SUBSCRIBED');
+      });
 
     return () => {
       supabase.removeChannel(channel);
@@ -234,11 +237,20 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
     <>
       <div ref={containerRef} className="h-screen w-screen" />
       <div className="absolute top-3 left-3 right-16 sm:right-auto z-10">
-        <LiveCounter events={events} />
+        <LiveCounter events={events} connected={connected} />
       </div>
       <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 z-10">
         <FilterControls filters={filters} onChange={setFilters} />
       </div>
+      {events.length === 0 && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 pointer-events-none">
+          <div className="rounded-lg bg-background/90 backdrop-blur border border-border px-4 py-3 text-sm text-center max-w-xs">
+            No quakes match these filters.
+            <br />
+            <span className="text-muted-foreground text-xs">Try widening the time window or lowering the magnitude.</span>
+          </div>
+        </div>
+      )}
       <EventDetail event={selected} onClose={() => setSelected(null)} />
     </>
   );
