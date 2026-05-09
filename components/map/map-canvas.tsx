@@ -12,6 +12,7 @@ import { getSupabasePublic } from '@/lib/supabase/public';
 import { connectEmsc } from '@/lib/emsc/client';
 import { LiveCounter } from '@/components/map/live-counter';
 import { FilterControls } from '@/components/map/filter-controls';
+import { EventDetail } from '@/components/map/event-detail';
 import type { MapEvent } from '@/lib/usgs/types';
 import type { Filters } from '@/lib/filters';
 import 'maplibre-gl/dist/maplibre-gl.css';
@@ -33,6 +34,7 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
   const [events, setEvents] = useState<MapEvent[]>(initialEvents);
   const [filters, setFilters] = useState<Filters>(initialFilters);
   const filtersRef = useRef<Filters>(initialFilters);
+  const [selected, setSelected] = useState<MapEvent | null>(null);
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -106,6 +108,21 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
       // Quake layer (on top)
       const quakeLayer = getQuakeLayer();
       if (!map.getLayer(quakeLayer.id)) map.addLayer(quakeLayer);
+    });
+
+    map.on('click', 'quakes-circle', (e) => {
+      const feature = e.features?.[0];
+      if (!feature) return;
+      const id = feature.properties?.id;
+      const event = eventsRef.current.find((x) => x.id === id);
+      if (event) setSelected(event);
+    });
+
+    map.on('mouseenter', 'quakes-circle', () => {
+      map.getCanvas().style.cursor = 'pointer';
+    });
+    map.on('mouseleave', 'quakes-circle', () => {
+      map.getCanvas().style.cursor = '';
     });
 
     map.addControl(
@@ -222,6 +239,7 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
       <div className="absolute bottom-4 right-4 z-10">
         <FilterControls filters={filters} onChange={setFilters} />
       </div>
+      <EventDetail event={selected} onClose={() => setSelected(null)} />
     </>
   );
 }
