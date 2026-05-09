@@ -14,3 +14,14 @@ export async function fetchRecentEvents(hours = 24, minMag = 2.5): Promise<MapEv
   if (error) throw new Error(`fetchRecentEvents: ${error.message}`);
   return data ?? [];
 }
+
+export async function fetchEventById(id: string): Promise<MapEvent | null> {
+  const supabase = getSupabasePublic();
+  const { data, error } = await supabase
+    .from('events')
+    .select('id, time, magnitude, depth_km, latitude, longitude, place')
+    .eq('id', id)
+    .maybeSingle();
+  if (error) throw new Error(`fetchEventById: ${error.message}`);
+  return data;
+}

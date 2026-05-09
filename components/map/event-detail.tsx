@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { timeAgo } from '@/lib/time/relative';
+import { eventPath } from '@/lib/events/slug';
 import type { MapEvent } from '@/lib/usgs/types';
 
 type Props = {
@@ -33,6 +35,12 @@ export function EventDetail({ event, onClose }: Props) {
               >
                 View on USGS →
               </a>
+              <Link
+                href={eventPath(event)}
+                className="block text-sm text-muted-foreground hover:text-foreground underline-offset-4 hover:underline"
+              >
+                Permanent link →
+              </Link>
             </div>
           </>
         )}
