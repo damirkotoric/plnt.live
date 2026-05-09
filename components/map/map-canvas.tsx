@@ -239,7 +239,7 @@ export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 2
       <div className="absolute top-3 left-3 right-16 sm:right-auto z-10">
         <LiveCounter events={events} connected={connected} />
       </div>
-      <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-4 z-10">
+      <div className="absolute bottom-10 left-3 right-3 sm:left-auto sm:right-4 sm:bottom-10 z-10">
         <FilterControls filters={filters} onChange={setFilters} />
       </div>
       {events.length === 0 && (

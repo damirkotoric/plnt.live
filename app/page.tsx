@@ -1,6 +1,7 @@
 import { headers } from 'next/headers';
 import { MapCanvas } from '@/components/map/map-canvas';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { Footer } from '@/components/footer';
 import { fetchRecentEvents } from '@/lib/events/fetch';
 import { parseFilters } from '@/lib/filters';
 
@@ -27,6 +28,7 @@ export default async function HomePage({ searchParams }: Props) {
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
+      <Footer />
     </main>
   );
 }
