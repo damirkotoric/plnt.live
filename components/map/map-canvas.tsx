@@ -16,13 +16,17 @@ import type { MapEvent } from '@/lib/usgs/types';
 import type { Filters } from '@/lib/filters';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-type Props = { initialEvents: MapEvent[]; initialFilters: Filters };
+type Props = {
+  initialEvents: MapEvent[];
+  initialFilters: Filters;
+  initialCenter?: [number, number];
+};
 
 function getStyle(theme: string | undefined) {
   return theme === 'dark' ? DARK_STYLE : LIGHT_STYLE;
 }
 
-export function MapCanvas({ initialEvents, initialFilters }: Props) {
+export function MapCanvas({ initialEvents, initialFilters, initialCenter = [0, 20] }: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
   const eventsRef = useRef<MapEvent[]>(initialEvents);
@@ -63,8 +67,8 @@ export function MapCanvas({ initialEvents, initialFilters }: Props) {
     const map = new maplibregl.Map({
       container: containerRef.current,
       style: getStyle(resolvedTheme),
-      center: [0, 20],
-      zoom: 1.5,
+      center: initialCenter,
+      zoom: 3,
       attributionControl: { compact: true },
     } as MapOptions);
 
